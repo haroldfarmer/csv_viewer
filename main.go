@@ -16,14 +16,47 @@ The flags are:
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
+
+	"github.com/da0x/golang/olog"
 )
 
 type Data struct {
-	Name  string
-	Age   int
-	Score float32
+	Username  string
+	ID        string
+	FirstName string
+	LastName  string
+}
+
+func readFile(file string) string {
+	body, err := ioutil.ReadFile(file)
+
+	if err != nil {
+		fmt.Printf("Unable to read file: : %v", err)
+	}
+
+	return string(body)
+}
+
+func parseCsvContents(contents string) []Data {
+	var displayData = []Data{}
+	scanner := bufio.NewScanner(strings.NewReader(contents))
+
+	for scanner.Scan() {
+		if len(scanner.Text()) > 0 {
+
+			data := strings.Split(scanner.Text(), ";")
+			fmt.Println(data)
+			displayData = append(displayData, Data{Username: data[0], ID: data[1], FirstName: data[2], LastName: data[3]})
+		}
+	}
+
+	return displayData
+
 }
 
 func main() {
@@ -37,8 +70,10 @@ func main() {
 		}
 		olog.Print(data)*/
 
-		fmt.Println(arguments[1])
-		fmt.Println(arguments[2])
+		fmt.Println(arguments[0])
+		contents := readFile(arguments[0])
+		result := parseCsvContents(contents)
+		olog.Print(result)
 
 	} else {
 		fmt.Println("To many arguements. Excepted arguments are -d for delemeter and -h for headers.")
